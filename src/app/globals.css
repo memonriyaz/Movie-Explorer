@@ -2,26 +2,143 @@
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
+  --card-background: #ffffff;
+  --border-color: #e5e7eb;
+  --muted: #666666;
+  --muted-foreground: #888888;
+  --input-background: #ffffff;
+  --input-border: #d1d5db;
+  --hover-background: #f9fafb;
+  --secondary-background: #f8f9fa;
+  --blue-50: #eff6ff;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --blue-900: #1e3a8a;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
 }
 
+html.dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card-background: #000000;
+  --border-color: #333333;
+  --muted: #999999;
+  --muted-foreground: #777777;
+  --input-background: #000000;
+  --input-border: #333333;
+  --hover-background: #111111;
+  --secondary-background: #0a0a0a;
+  --blue-50: rgba(59, 130, 246, 0.1);
+  --blue-600: #60a5fa;
+  --blue-700: #3b82f6;
+  --blue-900: rgba(59, 130, 246, 0.2);
+  /* Do NOT override gray colors here! */
+}
+
+/* Remove or comment out this block:
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
 }
+*/
+
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
 
 body {
-  color: var(--foreground);
   background: var(--background);
+  /* color: var(--foreground); */ /* Do not set color here */
   font-family: Arial, Helvetica, sans-serif;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+.text-inherit {
+  color: inherit;
+}
+
+/* Optional: Custom text color variables for your own use */
+html:not(.dark) {
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+}
+
+html.dark {
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.8);
+}
+
+/* Theme toggle dropdown animation */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-enter {
+  animation: slideInFromTop 0.15s ease-out;
 }
