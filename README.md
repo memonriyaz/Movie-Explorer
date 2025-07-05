@@ -1,36 +1,172 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎬 Movie Explorer
 
-## Getting Started
+A modern, full-stack movie discovery application built with Next.js 14, featuring authentication, favorites management, and infinite scroll.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **🔐 Authentication**: NextAuth.js v5 with Google OAuth and Credentials
+- **🎯 Movie Discovery**: Browse popular, top-rated, now playing, and upcoming movies
+- **🔍 Search**: Real-time movie search powered by TMDB API
+- **❤️ Favorites**: Save and manage your favorite movies
+- **♾️ Infinite Scroll**: Seamless pagination with automatic loading
+- **🌓 Dark/Light Theme**: Beautiful responsive design with theme toggle
+- **📱 Responsive**: Mobile-first design that works on all devices
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), React 18, TypeScript
+- **Authentication**: NextAuth.js v5
+- **Database**: MongoDB with Mongoose ODM
+- **Styling**: Tailwind CSS
+- **API**: The Movie Database (TMDB)
+- **UI Components**: Lucide React icons
+- **Notifications**: React Hot Toast
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- MongoDB database
+- TMDB API key
+- Google OAuth credentials (optional)
+
+### Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+# TMDB API Configuration
+NEXT_PUBLIC_TMDB_API_KEY=your_tmdb_api_key
+TMDB_API_BASE_URL=https://api.themoviedb.org/3
+NEXT_PUBLIC_TMDB_IMAGE_BASE_URL=https://image.tmdb.org/t/p
+
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret
+
+# JWT Secret
+JWT_SECRET=your_jwt_secret
+
+# MongoDB Configuration
+MONGODB_URI=your_mongodb_connection_string
+
+# Google OAuth (Optional)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/movie-explorer.git
+   cd movie-explorer
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-## Learn More
+3. **Set up environment variables**
+   - Copy `.env.local.example` to `.env.local`
+   - Fill in all required environment variables
 
-To learn more about Next.js, take a look at the following resources:
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📁 Project Structure
 
-## Deploy on Vercel
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── (auth)/            # Authentication pages
+│   ├── api/               # API routes
+│   ├── favorites/         # Favorites page
+│   └── movie/[id]/        # Movie detail page
+├── components/            # React components
+│   ├── auth/              # Authentication components
+│   ├── layout/            # Layout components
+│   ├── movies/            # Movie-related components
+│   ├── providers/         # Context providers
+│   └── ui/                # UI components
+├── lib/                   # Utility libraries
+├── models/                # Database models
+└── types/                 # TypeScript type definitions
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🔧 API Routes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `POST /api/auth/[...nextauth]` - NextAuth.js authentication
+- `GET /api/favorites` - Get user's favorite movies
+- `POST /api/favorites/add` - Add movie to favorites
+- `POST /api/favorites/remove` - Remove movie from favorites
+
+## 🎯 Key Features Explained
+
+### Authentication System
+- **NextAuth.js v5**: Modern authentication with JWT sessions
+- **Google OAuth**: One-click sign-in with Google
+- **Credentials**: Email/password authentication with bcrypt
+- **Session Management**: Automatic session handling and protection
+
+### Movie Data Integration
+- **TMDB API**: Real-time movie data from The Movie Database
+- **Categories**: Popular, top-rated, now playing, upcoming
+- **Search**: Instant search with debouncing
+- **Images**: Optimized image loading with Next.js Image component
+
+### Favorites Management
+- **MongoDB Storage**: User favorites stored in database
+- **Real-time Updates**: Optimistic UI updates
+- **Sync**: Automatic synchronization between client and server
+
+### Performance Optimizations
+- **Infinite Scroll**: Efficient pagination with automatic loading
+- **Image Optimization**: Next.js Image component with lazy loading
+- **Client-side Caching**: Smart caching of API responses
+- **Code Splitting**: Automatic code splitting with Next.js
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. **Push to GitHub**
+2. **Connect to Vercel**
+3. **Set environment variables**
+4. **Deploy**
+
+### Other Platforms
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [The Movie Database (TMDB)](https://www.themoviedb.org/) for the movie data API
+- [Next.js](https://nextjs.org/) for the amazing framework
+- [NextAuth.js](https://next-auth.js.org/) for authentication
+- [Tailwind CSS](https://tailwindcss.com/) for styling

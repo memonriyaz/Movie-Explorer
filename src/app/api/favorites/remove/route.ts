@@ -1,25 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectMongoDB from '@/lib/mongodb';
 import UserModel from '@/models/User';
-import { verifyToken } from '@/lib/auth';
+import { auth } from '@/lib/auth-helper';
 
 export async function POST(request: NextRequest) {
   try {
-    // Get the token from the Authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
-    const decoded = verifyToken(token);
-    
-    if (!decoded) {
-      return NextResponse.json(
-        { error: 'Invalid token' },
         { status: 401 }
       );
     }
@@ -35,24 +25,12 @@ export async function POST(request: NextRequest) {
 
     await connectMongoDB();
 
-    // Try to find user by ID first, fallback to email if ID is invalid
-    let updatedUser;
-    try {
-      // Remove movie from favorites
-      updatedUser = await UserModel.findByIdAndUpdate(
-        decoded.id,
-        { $pull: { favorites: movieId } },
-        { new: true }
-      );
-    } catch (error) {
-      // If findByIdAndUpdate fails (invalid ObjectId), try finding by email
-      console.log('Invalid ObjectId, trying to find user by email:', decoded.email);
-      updatedUser = await UserModel.findOneAndUpdate(
-        { email: decoded.email },
-        { $pull: { favorites: movieId } },
-        { new: true }
-      );
-    }
+    // Remove movie from favorites
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      session.user.id,
+      { $pull: { favorites: movieId } },
+      { new: true }
+    );
 
     if (!updatedUser) {
       return NextResponse.json(

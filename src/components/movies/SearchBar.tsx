@@ -17,25 +17,28 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get('q') || '');
+  const [query, setQuery] = useState(searchParams?.get('q') || '');
   const [isFocused, setIsFocused] = useState(false);
 
+  const performSearch = useCallback((searchQuery: string) => {
+    onSearch(searchQuery);
+    
+    // Update URL with search query
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    if (searchQuery) {
+      params.set('q', searchQuery);
+    } else {
+      params.delete('q');
+    }
+    
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    router.push(newUrl, { scroll: false });
+  }, [onSearch, router, searchParams]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
-    debounce((searchQuery: string) => {
-      onSearch(searchQuery);
-      
-      // Update URL with search query
-      const params = new URLSearchParams(searchParams.toString());
-      if (searchQuery) {
-        params.set('q', searchQuery);
-      } else {
-        params.delete('q');
-      }
-      
-      const newUrl = `${window.location.pathname}?${params.toString()}`;
-      router.push(newUrl, { scroll: false });
-    }, 300),
-    [onSearch, router, searchParams]
+    debounce(performSearch, 300),
+    [performSearch]
   );
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     onSearch('');
     
     // Clear URL params
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() || '');
     params.delete('q');
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     router.push(newUrl, { scroll: false });

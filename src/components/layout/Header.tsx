@@ -3,38 +3,41 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
 import { User, LogOut, Heart, Film } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import toast from 'react-hot-toast';
-import { clearStoredUser } from "@/lib/auth-client";
+import toast from "react-hot-toast";
+import { useSession, signOut } from "next-auth/react";
 
 export const Header: React.FC = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  const user = session?.user;
+  const isAuthenticated = !!user;
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    clearStoredUser();
+  const handleLogout = async () => {
     setShowUserMenu(false);
-    toast.success('Successfully logged out. See you soon!', { duration: 3000 });
+    await signOut({ redirect: false });
+    toast.success("Successfully logged out. See you soon!", {
+      duration: 3000,
+    });
     router.push("/login");
   };
 
-  const isActivePath = (path: string) => {
-    return pathname === path;
-  };
+  const isActivePath = (path: string) => pathname === path;
+
+  if (!mounted) return null;
 
   return (
-    <header className="bg-white  dark:bg-black shadow-md border-b border-gray-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto p-3 sm:px-6 lg:px-8 ">
+    <header className="bg-white dark:bg-black shadow-md border-b border-gray-200 dark:border-gray-800">
+      <div className="max-w-7xl mx-auto p-3 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-12">
           {/* Logo */}
           <Link
@@ -45,7 +48,7 @@ export const Header: React.FC = () => {
             <span>Movie Explorer</span>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Desktop Navigation */}
           {isAuthenticated && (
             <nav className="hidden md:flex items-center space-x-8">
               <Link
@@ -63,7 +66,7 @@ export const Header: React.FC = () => {
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1 ${
                   isActivePath("/favorites")
                     ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                    : "text-white hover:text-blue-300"
+                    : "text-gray-900 dark:text-white hover:text-blue-300"
                 }`}
               >
                 <Heart className="h-4 w-4" />
@@ -72,14 +75,12 @@ export const Header: React.FC = () => {
             </nav>
           )}
 
-          {/* Right side actions */}
+          {/* Right side */}
           <div className="flex items-center space-x-4">
-            {/* Theme toggle */}
             <ThemeToggle />
 
             {isAuthenticated ? (
               <div className="relative">
-                {/* User menu trigger */}
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center space-x-2 p-2 rounded-md text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
@@ -90,7 +91,6 @@ export const Header: React.FC = () => {
                   </span>
                 </button>
 
-                {/* User dropdown menu */}
                 {showUserMenu && (
                   <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-black rounded-md shadow-lg border border-gray-200 dark:border-gray-800 z-50">
                     <div className="py-1">
@@ -141,7 +141,7 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile navigation */}
+      {/* Mobile nav */}
       {isAuthenticated && (
         <div className="md:hidden border-t border-gray-200 dark:border-gray-800">
           <div className="px-4 py-2 space-y-1">
@@ -170,7 +170,6 @@ export const Header: React.FC = () => {
         </div>
       )}
 
-      {/* Overlay for user menu */}
       {showUserMenu && (
         <div
           className="fixed inset-0 z-40"

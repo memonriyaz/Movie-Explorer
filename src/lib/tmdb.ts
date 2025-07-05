@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { Movie, MovieDetail, TMDBResponse, Genre } from '@/types';
-import { NextResponse } from 'next/server';
 
 const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const BASE_URL = process.env.TMDB_API_BASE_URL || 'https://api.themoviedb.org/3';
@@ -54,11 +53,12 @@ export const searchMovies = async (query: string, page: number = 1): Promise<TMD
 
 export const getMovieDetails = async (movieId: number): Promise<MovieDetail> => {
   try {
-    const response = await tmdbApi.get< MovieDetail  >(`/movie/${movieId}`);
+    const response = await tmdbApi.get<MovieDetail>(`/movie/${movieId}`);
     return response.data;
   } catch (error) {
-    console.log(error);
-    throw error;} 
+    console.error('Error fetching movie details:', error);
+    throw error;
+  }
 };
 
 export const getMovieGenres = async (): Promise<{ genres: Genre[] }> => {

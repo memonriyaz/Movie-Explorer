@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '@/types';
 import connectMongoDB from '@/lib/mongodb';
-import UserModel, { IUser } from '@/models/User';
+import UserModel from '@/models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-fallback-secret';
 

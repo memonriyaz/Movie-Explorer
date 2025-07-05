@@ -16,11 +16,9 @@ interface MongooseCache {
   promise: Promise<typeof mongoose> | null;
 }
 
-// @ts-ignore
 let cached: MongooseCache = global.mongoose;
 
 if (!cached) {
-  // @ts-ignore
   cached = global.mongoose = { conn: null, promise: null };
 }
 

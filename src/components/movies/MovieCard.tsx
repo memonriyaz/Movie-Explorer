@@ -3,12 +3,13 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Movie } from '@/types';
 import { getImageUrl } from '@/lib/tmdb';
-import { isFavorite, toggleFavorite, saveFavoriteMovie, removeFavoriteMovie } from '@/lib/favorites';
+import { addFavorite, removeFavorite, fetchFavorites } from '@/lib/favorites-client';
 import { Heart, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 
 interface MovieCardProps {
   movie: Movie;
@@ -16,25 +17,43 @@ interface MovieCardProps {
 }
 
 export const MovieCard: React.FC<MovieCardProps> = ({ movie, showFavoriteButton = true }) => {
-  const router = useRouter();
-  const [isMovieFavorite, setIsMovieFavorite] = useState(isFavorite(movie.id));
+  const { data: session } = useSession();
+  const [isMovieFavorite, setIsMovieFavorite] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [isNavigating, setIsNavigating] = useState(false);
+
+  // Check if movie is in favorites when component mounts
+  useEffect(() => {
+    if (session) {
+      const checkFavoriteStatus = async () => {
+        try {
+          const favorites = await fetchFavorites();
+          setIsMovieFavorite(favorites.includes(movie.id));
+        } catch (error) {
+          console.error('Error checking favorite status:', error);
+        }
+      };
+      checkFavoriteStatus();
+    }
+  }, [session, movie.id]);
 
   const handleFavoriteToggle = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
+    if (!session) {
+      toast.error('Please log in to add favorites');
+      return;
+    }
+    
     try {
-      const newFavoriteState = await toggleFavorite(movie.id);
-      setIsMovieFavorite(newFavoriteState);
-      
-      if (newFavoriteState) {
-        saveFavoriteMovie(movie);
-        toast.success(`${movie.title} added to your favorites!`, { duration: 3000 });
-      } else {
-        removeFavoriteMovie(movie.id);
+      if (isMovieFavorite) {
+        await removeFavorite(movie.id);
+        setIsMovieFavorite(false);
         toast.success(`${movie.title} removed from your favorites.`, { duration: 3000 });
+      } else {
+        await addFavorite(movie.id);
+        setIsMovieFavorite(true);
+        toast.success(`${movie.title} added to your favorites!`, { duration: 3000 });
       }
     } catch (error) {
       toast.error('Failed to update favorites. Please try again.', { duration: 3000 });
