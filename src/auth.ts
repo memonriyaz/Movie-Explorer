@@ -6,7 +6,7 @@ import { loginUser } from "@/lib/auth";
 import connectMongoDB from "@/lib/mongodb";
 import UserModel from "@/models/User";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const authOptions: any = {
   providers: [
     GoogleProvider({
@@ -19,7 +19,7 @@ const authOptions: any = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
       async authorize(credentials): Promise<any> {
         if (!credentials?.email || !credentials?.password) {
           return null;
@@ -40,7 +40,6 @@ const authOptions: any = {
     }),
   ],
   callbacks: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async signIn({ user, account }: { user: any; account: any }) {
       if (account?.provider === "google") {
         try {

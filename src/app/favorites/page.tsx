@@ -7,55 +7,54 @@ import { Movie } from "@/types";
 import { fetchFavorites } from "@/lib/favorites-client";
 import { MovieCard } from "@/components/movies/MovieCard";
 import { MovieGridSkeleton } from "@/components/ui/LoadingSkeleton";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import { ProtectedPage } from "@/components/auth/RouteGuard";
 import { Heart, Trash2 } from "lucide-react";
 import { getMovieDetails } from "@/lib/tmdb";
 import toast from "react-hot-toast";
 
-export default function FavoritesPage() {
-  const { data: session, status } = useSession();
+function FavoritesPageContent() {
+  const { data: session } = useSession();
   const router = useRouter();
   const [favoriteMovies, setFavoriteMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showClearModal, setShowClearModal] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-      return;
-    }
-
-    if (status === "authenticated") {
-      const loadFavorites = async () => {
-        setIsLoading(true);
+    const loadFavorites = async () => {
+      setIsLoading(true);
+      
+      try {
+        const ids = await fetchFavorites(); // Get favorites from server
         
-        try {
-          const ids = await fetchFavorites(); // Get favorites from server
-          
-          if (ids.length > 0) {
-            const details = await Promise.all(
-              ids.map((id) => getMovieDetails(Number(id)))
-            );
-            setFavoriteMovies(details);
-          } else {
-            setFavoriteMovies([]);
-          }
-        } catch (err) {
-          console.error("Error loading favorite movies:", err);
-          toast.error("Failed to load favorites");
-        } finally {
-          setIsLoading(false);
+        if (ids.length > 0) {
+          const details = await Promise.all(
+            ids.map((id) => getMovieDetails(Number(id)))
+          );
+          setFavoriteMovies(details);
+        } else {
+          setFavoriteMovies([]);
         }
-      };
+      } catch (err) {
+        console.error("Error loading favorite movies:", err);
+        toast.error("Failed to load favorites");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      loadFavorites();
-    }
-  }, [status, router]);
+    loadFavorites();
+  }, []);
+
+  const handleClearAllClick = () => {
+    setShowClearModal(true);
+  };
 
   const clearAllFavorites = async () => {
-    const confirmed = confirm("Remove all favorites?");
-    if (!confirmed) return;
+    setIsClearing(true);
     
     try {
-  
       await Promise.all(
         favoriteMovies.map(movie => 
           fetch('/api/favorites/remove', {
@@ -67,14 +66,17 @@ export default function FavoritesPage() {
       );
       
       setFavoriteMovies([]);
-      toast.success("All favorites removed");
+      toast.success("All favorites removed successfully!");
+      setShowClearModal(false);
     } catch (error) {
       console.error("Error clearing favorites:", error);
-      toast.error("Failed to clear favorites");
+      toast.error("Failed to clear favorites. Please try again.");
+    } finally {
+      setIsClearing(false);
     }
   };
 
-  if (status === "loading" || isLoading) {
+  if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="h-8 w-48 bg-gray-300 dark:bg-gray-700 rounded mb-4 animate-pulse" />
@@ -82,8 +84,6 @@ export default function FavoritesPage() {
       </div>
     );
   }
-
-  if (!session) return null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -98,11 +98,12 @@ export default function FavoritesPage() {
 
         {favoriteMovies.length > 0 && (
           <button
-            onClick={clearAllFavorites}
-            className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+            onClick={handleClearAllClick}
+            className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isClearing}
           >
             <Trash2 className="h-4 w-4" />
-            <span>Clear All</span>
+            <span>{isClearing ? "Clearing..." : "Clear All"}</span>
           </button>
         )}
       </div>
@@ -140,6 +141,27 @@ export default function FavoritesPage() {
           </button>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showClearModal}
+        onClose={() => setShowClearModal(false)}
+        onConfirm={clearAllFavorites}
+        title="Clear All Favorites"
+        message={`Are you sure you want to remove all ${favoriteMovies.length} favorite movies? This action cannot be undone.`}
+        confirmText="Clear All"
+        cancelText="Keep Favorites"
+        variant="danger"
+        isLoading={isClearing}
+      />
     </div>
+  );
+}
+
+export default function FavoritesPage() {
+  return (
+    <ProtectedPage>
+      <FavoritesPageContent />
+    </ProtectedPage>
   );
 }

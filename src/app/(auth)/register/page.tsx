@@ -1,5 +1,10 @@
-import  RegisterForm  from '@/components/auth/RegisterForm';
+import RegisterForm from '@/components/auth/RegisterForm';
+import { GuestOnlyPage } from '@/components/auth/RouteGuard';
 
 export default function RegisterPage() {
-  return <RegisterForm />;
+  return (
+    <GuestOnlyPage>
+      <RegisterForm />
+    </GuestOnlyPage>
+  );
 }

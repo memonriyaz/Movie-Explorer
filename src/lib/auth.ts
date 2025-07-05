@@ -56,18 +56,28 @@ export const registerUser = async (credentials: UserCredentials): Promise<User> 
   
   const { email, password, name } = credentials;
   
-  // Check if user already exists
   const existingUser = await UserModel.findOne({ email });
   if (existingUser) {
+    if (existingUser.googleId && !existingUser.password) {
+      throw new Error('An account with this email already exists via Google. Please sign in with Google.');
+    }
     throw new Error('User already exists');
+  }
+  
+  if (!email || !password || !name) {
+    throw new Error('All fields are required');
+  }
+  
+  if (password.length < 6) {
+    throw new Error('Password must be at least 6 characters long');
   }
   
   const hashedPassword = await hashPassword(password);
   
   const newUser = new UserModel({
-    email,
+    email: email.toLowerCase().trim(),
     password: hashedPassword,
-    name,
+    name: name.trim(),
     favorites: []
   });
   
@@ -84,9 +94,17 @@ export const registerUser = async (credentials: UserCredentials): Promise<User> 
 export const loginUser = async (email: string, password: string): Promise<User> => {
   await connectMongoDB();
   
-  const user = await UserModel.findOne({ email });
+  const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
   
   if (!user) {
+    throw new Error('Invalid credentials');
+  }
+  
+  if (user.googleId && !user.password) {
+    throw new Error('This account was created with Google. Please sign in with Google.');
+  }
+  
+  if (!user.password) {
     throw new Error('Invalid credentials');
   }
   

@@ -24,7 +24,6 @@ export const ToastProvider = () => {
       containerClassName=""
       containerStyle={{}}
       toastOptions={{
-        // Define default options
         className: '',
         duration: 4000,
         style: {
@@ -35,7 +34,6 @@ export const ToastProvider = () => {
             ? '0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2)'
             : '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
         },
-        // Default options for specific types
         success: {
           iconTheme: {
             primary: '#10b981',

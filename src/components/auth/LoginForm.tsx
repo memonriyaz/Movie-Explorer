@@ -51,7 +51,12 @@ export const LoginForm: React.FC = () => {
       });
 
       if (res?.error) {
-        throw new Error(res.error);
+        // Map internal errors to user-friendly ones
+        let errorMsg = "Login failed. Please try again.";
+        if (res.error === "CredentialsSignin") {
+          errorMsg = "Invalid email or password.";
+        }
+        throw new Error(errorMsg);
       }
 
       toast.success("Welcome back!", { id: loadingToast });
@@ -64,7 +69,6 @@ export const LoginForm: React.FC = () => {
       setIsLoading(false);
     }
   };
-  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -77,7 +81,7 @@ export const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-black px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black px-4 sm:px-6 lg:px-8">
       <div className="max-w-sm w-full space-y-6">
         <div>
           <h2 className="text-center text-2xl font-bold text-gray-900 dark:text-white">
@@ -108,7 +112,7 @@ export const LoginForm: React.FC = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  <Mail className="h-5 w-5 text-blue-500"/>
                 </div>
                 <input
                   id="email"
@@ -118,7 +122,7 @@ export const LoginForm: React.FC = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pl-10 pr-3 py-2.5 border ${
+                  className={`appearance-none block w-full pl-10 pr-3 py-2.5 border ${
                     errors.email
                       ? "border-red-300 dark:border-red-600"
                       : "border-gray-300 dark:border-gray-600"
@@ -139,7 +143,7 @@ export const LoginForm: React.FC = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-blue-500" />
                 </div>
                 <input
                   id="password"
@@ -149,7 +153,7 @@ export const LoginForm: React.FC = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pl-10 pr-10 py-2.5 border ${
+                  className={`appearance-none block w-full pl-10 pr-10 py-2.5 border ${
                     errors.password
                       ? "border-red-300 dark:border-red-600"
                       : "border-gray-300 dark:border-gray-600"
@@ -162,9 +166,9 @@ export const LoginForm: React.FC = () => {
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    <EyeOff className="h-5 w-5 text-blue-500" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    <Eye className="h-5 w-5 text-blue-500" />
                   )}
                 </button>
               </div>
@@ -180,16 +184,20 @@ export const LoginForm: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:text-blue-300"
             >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+              <span className="absolute left-0 inset-y-0 flex items-center pl-3 hover:text-blue-400">
                 {isLoading ? (
                   <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
                 ) : (
-                  <LogIn className="h-5 w-5 text-blue-500 group-hover:text-blue-400" />
+                  <LogIn className="h-5 w-5  group-hover:text-blue-400" />
                 )}
               </span>
-              {isLoading ? "Signing in..." : "Sign in"}
+              {isLoading ? (
+                "Signing in..."
+              ) : (
+               "Sign in"
+              )}
             </button>
           </div>
 

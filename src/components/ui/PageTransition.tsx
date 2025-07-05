@@ -12,7 +12,6 @@ export function PageTransition({ children }: PageTransitionProps) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    // Add fade out effect when route changes
     setIsVisible(false);
     
     const timer = setTimeout(() => {

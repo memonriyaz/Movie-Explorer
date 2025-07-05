@@ -35,16 +35,15 @@ export default function MovieDetailPage() {
   const movieId = params?.id as string;
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-      return;
-    }
-
-    if (movieId && status === "authenticated") {
+    if (movieId) {
       fetchMovieDetails();
-      checkFavoriteStatus();
+      
+      // Only check favorite status if user is authenticated
+      if (status === "authenticated") {
+        checkFavoriteStatus();
+      }
     }
-  }, [movieId, status, router]);
+  }, [movieId, status]);
 
   const fetchMovieDetails = async () => {
     if (!movieId) return;
