@@ -137,5 +137,5 @@ src/
 
 ### Vercel 
 
-**Link: ** - https://movie-explorer-sooty.vercel.app/
+**Link:** - https://movie-explorer-sooty.vercel.app/
 
