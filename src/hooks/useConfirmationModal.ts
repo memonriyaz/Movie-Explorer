@@ -9,7 +9,7 @@ interface ConfirmationModalState {
   confirmText: string;
   cancelText: string;
   variant: "danger" | "warning" | "info";
-  onConfirm: (() => void) | (() => Promise<void>);
+  onConfirm: () => void | Promise<void>;
 }
 
 const defaultState: ConfirmationModalState = {
@@ -23,7 +23,8 @@ const defaultState: ConfirmationModalState = {
 };
 
 export const useConfirmationModal = () => {
-  const [modalState, setModalState] = useState<ConfirmationModalState>(defaultState);
+  const [modalState, setModalState] =
+    useState<ConfirmationModalState>(defaultState);
   const [isLoading, setIsLoading] = useState(false);
 
   const showModal = useCallback((config: Partial<ConfirmationModalState>) => {
@@ -42,14 +43,14 @@ export const useConfirmationModal = () => {
   const confirm = useCallback(async () => {
     setIsLoading(true);
     try {
-      await modalState.onConfirm();
+      await modalState.onConfirm?.();
     } catch (error) {
       console.error("Confirmation action failed:", error);
     } finally {
       setIsLoading(false);
       hideModal();
     }
-  }, [modalState.onConfirm, hideModal]);
+  }, [modalState, hideModal]);
 
   return {
     modalState,

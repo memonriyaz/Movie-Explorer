@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -34,18 +34,8 @@ export default function MovieDetailPage() {
 
   const movieId = params?.id as string;
 
-  useEffect(() => {
-    if (movieId) {
-      fetchMovieDetails();
-      
-      // Only check favorite status if user is authenticated
-      if (status === "authenticated") {
-        checkFavoriteStatus();
-      }
-    }
-  }, [movieId, status]);
-
-  const fetchMovieDetails = async () => {
+  
+  const fetchMovieDetails = useCallback(async () => {
     if (!movieId) return;
     try {
       setLoading(true);
@@ -57,9 +47,9 @@ export default function MovieDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [movieId]);
 
-  const checkFavoriteStatus = async () => {
+  const checkFavoriteStatus = useCallback(async () => {
     if (!movieId) return;
     try {
       const favorites = await fetchFavorites();
@@ -67,7 +57,20 @@ export default function MovieDetailPage() {
     } catch (err) {
       console.error("Error checking favorite status:", err);
     }
-  };
+  }, [movieId]);
+
+  useEffect(() => {
+    if (movieId) {
+      fetchMovieDetails();
+
+      // Only check favorite status if user is authenticated
+      if (status === "authenticated") {
+        checkFavoriteStatus();
+      }
+    }
+  }, [movieId, status, fetchMovieDetails, checkFavoriteStatus]);
+
+
 
   const handleFavoriteToggle = async () => {
     if (!session || !movieId) {

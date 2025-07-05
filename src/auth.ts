@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const NextAuth = require("next-auth").default;
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -5,7 +8,6 @@ import GoogleProvider from "next-auth/providers/google";
 import { loginUser } from "@/lib/auth";
 import connectMongoDB from "@/lib/mongodb";
 import UserModel from "@/models/User";
-
 
 const authOptions: any = {
   providers: [
@@ -19,14 +21,17 @@ const authOptions: any = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-  
+
       async authorize(credentials): Promise<any> {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
         try {
-          const user = await loginUser(credentials.email as string, credentials.password as string);
+          const user = await loginUser(
+            credentials.email as string,
+            credentials.password as string
+          );
           return {
             id: user.id,
             email: user.email,
@@ -44,10 +49,10 @@ const authOptions: any = {
       if (account?.provider === "google") {
         try {
           await connectMongoDB();
-          
+
           // Check if user already exists
           let existingUser = await UserModel.findOne({ email: user.email });
-          
+
           if (!existingUser) {
             // Create new user for Google OAuth
             const newUser = new UserModel({
@@ -57,17 +62,17 @@ const authOptions: any = {
               favorites: [],
               // No password for Google OAuth users
             });
-            
+
             existingUser = await newUser.save();
           } else if (!existingUser.googleId) {
             // Link Google account to existing user
             existingUser.googleId = account.providerAccountId;
             await existingUser.save();
           }
-          
+
           // Update user object with database ID
           user.id = existingUser._id.toString();
-          
+
           return true;
         } catch (error) {
           console.error("Google sign-in error:", error);

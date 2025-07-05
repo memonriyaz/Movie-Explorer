@@ -1,8 +1,12 @@
-declare global {
-  var mongoose: {
-    conn: typeof import('mongoose') | null;
-    promise: Promise<typeof import('mongoose')> | null;
-  };
-}
+/* eslint-disable no-var */
+import mongoose from "mongoose";
 
-export {};
+export type MongooseCache = {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+};
+
+declare global {
+  var mongoose: MongooseCache;
+}
+/* eslint-enable no-var */

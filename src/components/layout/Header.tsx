@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { User, LogOut, Heart, Loader2 , Film } from "lucide-react";
+import { User, LogOut, Heart , Film } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import toast from "react-hot-toast";
 import { useSession, signOut } from "next-auth/react";
@@ -14,7 +14,6 @@ export const Header: React.FC = () => {
   const pathname = usePathname();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const user = session?.user;
   const isAuthenticated = !!user;

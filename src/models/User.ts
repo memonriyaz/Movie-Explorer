@@ -1,17 +1,19 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { Schema, model, models, Document } from "mongoose";
 
 export interface IUser extends Document {
-  _id: Types.ObjectId;
   name: string;
   email: string;
-  password?: string; // Optional for Google OAuth users
+  password?: string;
   googleId?: string;
   favorites: number[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-const UserSchema = new Schema(
+const UserSchema: Schema<IUser> = new Schema(
   {
     name: {
       type: String,
@@ -29,12 +31,11 @@ const UserSchema = new Schema(
     },
     password: {
       type: String,
-      required: false, // Not required for Google OAuth users
+      required: false,
       minlength: [6, "Password must be at least 6 characters long"],
       validate: {
-        validator: function (this: any, password: string) {
-          // Only require password if googleId is not present
-          return this.googleId || password;
+        validator(this: any, password: string): boolean {
+          return !!this.googleId || !!password;
         },
         message: "Password is required for non-OAuth users",
       },
@@ -42,7 +43,7 @@ const UserSchema = new Schema(
     googleId: {
       type: String,
       required: false,
-      sparse: true, // Allows multiple nulls, but unique for non-null
+      sparse: true,
     },
     favorites: {
       type: [Number],
@@ -54,9 +55,8 @@ const UserSchema = new Schema(
   }
 );
 
-// Indexes for better performance
-UserSchema.index({ email: 1 });
-UserSchema.index({ googleId: 1 }, { sparse: true });
 
-export default mongoose.models.User ||
-  mongoose.model<IUser>("User", UserSchema);
+// Use existing model if already compiled
+const UserModel = models.User || model<IUser>("User", UserSchema);
+
+export default UserModel;

@@ -16,7 +16,7 @@ export function AuthGuard({
   requireAuth = true, 
   redirectTo 
 }: AuthGuardProps) {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {

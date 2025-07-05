@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { Movie } from "@/types";
 import { fetchFavorites } from "@/lib/favorites-client";
 import { MovieCard } from "@/components/movies/MovieCard";
@@ -14,7 +13,6 @@ import { getMovieDetails } from "@/lib/tmdb";
 import toast from "react-hot-toast";
 
 function FavoritesPageContent() {
-  const { data: session } = useSession();
   const router = useRouter();
   const [favoriteMovies, setFavoriteMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
