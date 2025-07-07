@@ -4,7 +4,7 @@ A modern, full-stack movie discovery application built with Next.js 14, featurin
 
 ## ✨ Features
 
-- **🔐 Authentication**: NextAuth.js v5 with Google OAuth and Credentials
+- **🔐 Authentication**: NextAuth.js v4 with Google OAuth and Credentials
 - **🎯 Movie Discovery**: Browse popular, top-rated, now playing, and upcoming movies
 - **🔍 Search**: Real-time movie search powered by TMDB API
 - **❤️ Favorites**: Save and manage your favorite movies
@@ -135,38 +135,7 @@ src/
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Vercel 
 
-1. **Push to GitHub**
-2. **Connect to Vercel**
-3. **Set environment variables**
-4. **Deploy**
+**Link:** - https://movie-explorer-sooty.vercel.app/
 
-### Other Platforms
-
-```bash
-# Build for production
-npm run build
-
-# Start production server
-npm start
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [The Movie Database (TMDB)](https://www.themoviedb.org/) for the movie data API
-- [Next.js](https://nextjs.org/) for the amazing framework
-- [NextAuth.js](https://next-auth.js.org/) for authentication
-- [Tailwind CSS](https://tailwindcss.com/) for styling
