@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { Movie, MovieDetail, TMDBResponse, Genre } from '@/types';
+import NodeCache from "node-cache";
+
 
 const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const BASE_URL = process.env.TMDB_API_BASE_URL || 'https://api.themoviedb.org/3';
@@ -51,15 +53,34 @@ export const searchMovies = async (query: string, page: number = 1): Promise<TMD
   return response.data;
 };
 
-export const getMovieDetails = async (movieId: number): Promise<MovieDetail> => {
+
+const cache = new NodeCache({ stdTTL: 60 * 60 }); // 3600 seconds = 1 hour
+
+export const getMovieDetails = async (
+  movieId: number
+): Promise<MovieDetail> => {
+  const cacheKey = `movie-${movieId}`;
+
+  // Check cache first
+  const cached = cache.get<MovieDetail>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   try {
     const response = await tmdbApi.get<MovieDetail>(`/movie/${movieId}`);
-    return response.data;
+    const movieData = response.data;
+
+    // Store in cache
+    cache.set(cacheKey, movieData);
+
+    return movieData;
   } catch (error) {
-    console.error('Error fetching movie details:', error);
+    console.error("Error fetching movie details:", error);
     throw error;
   }
 };
+
 
 export const getMovieGenres = async (): Promise<{ genres: Genre[] }> => {
   const response = await tmdbApi.get<{ genres: Genre[] }>('/genre/movie/list');
