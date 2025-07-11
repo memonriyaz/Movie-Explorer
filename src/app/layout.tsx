@@ -8,6 +8,7 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 import { NavigationLoading } from "@/components/ui/NavigationLoading";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
 
 export const metadata: Metadata = {
   title: "Movie Explorer - Discover Amazing Movies",
@@ -26,20 +27,22 @@ export default function RootLayout({
         <SessionProvider>
           <ThemeProvider>
             <ThemeClientWrapper>
-              <div
-                className="min-h-screen transition-colors duration-200"
-                style={{
-                  background: "var(--background)",
-                  color: "var(--foreground)",
-                }}
-              >
-                <NavigationLoading />
-                <Header />
-                <main className="min-h-screen">
-                  <PageTransition>{children}</PageTransition>
-                </main>
-                <ToastProvider />
-              </div>
+              <FavoritesProvider>
+                <div
+                  className="min-h-screen transition-colors duration-200"
+                  style={{
+                    background: "var(--background)",
+                    color: "var(--foreground)",
+                  }}
+                >
+                  <NavigationLoading />
+                  <Header />
+                  <main className="min-h-screen">
+                    <PageTransition>{children}</PageTransition>
+                  </main>
+                  <ToastProvider />
+                </div>
+              </FavoritesProvider>
             </ThemeClientWrapper>
           </ThemeProvider>
         </SessionProvider>

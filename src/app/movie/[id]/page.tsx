@@ -6,11 +6,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { MovieDetail } from "@/types";
 import { getMovieDetails, getImageUrl, getBackdropUrl } from "@/lib/tmdb";
-import {
-  fetchFavorites,
-  addFavorite,
-  removeFavorite,
-} from "@/lib/favorites-client";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import {
   Heart,
   Star,
@@ -26,10 +22,10 @@ export default function MovieDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { data: session, status } = useSession();
+  const { isFavorite, addToFavorites, removeFromFavorites } = useFavorites();
   const [movie, setMovie] = useState<MovieDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   const movieId = params?.id as string;
@@ -49,26 +45,11 @@ export default function MovieDetailPage() {
     }
   }, [movieId]);
 
-  const checkFavoriteStatus = useCallback(async () => {
-    if (!movieId) return;
-    try {
-      const favorites = await fetchFavorites();
-      setIsFavorite(favorites.includes(parseInt(movieId)));
-    } catch (err) {
-      console.error("Error checking favorite status:", err);
-    }
-  }, [movieId]);
-
   useEffect(() => {
     if (movieId) {
       fetchMovieDetails();
-
-      // Only check favorite status if user is authenticated
-      if (status === "authenticated") {
-        checkFavoriteStatus();
-      }
     }
-  }, [movieId, status, fetchMovieDetails, checkFavoriteStatus]);
+  }, [movieId, fetchMovieDetails]);
 
 
 
@@ -80,13 +61,12 @@ export default function MovieDetailPage() {
 
     setFavoriteLoading(true);
     try {
-      if (isFavorite) {
-        await removeFavorite(parseInt(movieId));
-        setIsFavorite(false);
+      const isCurrentlyFavorite = isFavorite(parseInt(movieId));
+      if (isCurrentlyFavorite) {
+        await removeFromFavorites(parseInt(movieId));
         toast.success(`${movie?.title} removed from favorites`);
       } else {
-        await addFavorite(parseInt(movieId));
-        setIsFavorite(true);
+        await addToFavorites(parseInt(movieId));
         toast.success(`${movie?.title} added to favorites`);
       }
     } catch (err) {
@@ -172,12 +152,12 @@ export default function MovieDetailPage() {
           onClick={handleFavoriteToggle}
           disabled={favoriteLoading}
           className={`absolute top-4 right-4 z-10 p-3 rounded-full transition-colors ${
-            isFavorite
+            isFavorite(parseInt(movieId))
               ? "bg-red-500 text-white hover:bg-red-600"
               : "bg-black/70 text-white hover:bg-black/80"
           } ${favoriteLoading ? "opacity-50 cursor-not-allowed" : ""}`}
         >
-          <Heart size={24} className={isFavorite ? "fill-current" : ""} />
+          <Heart size={24} className={isFavorite(parseInt(movieId)) ? "fill-current" : ""} />
         </button>
       </div>
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Movie } from "@/types";
-import { fetchFavorites } from "@/lib/favorites-client";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import { MovieCard } from "@/components/movies/MovieCard";
 import { MovieGridSkeleton } from "@/components/ui/LoadingSkeleton";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
@@ -14,21 +14,21 @@ import toast from "react-hot-toast";
 
 function FavoritesPageContent() {
   const router = useRouter();
+  const { favorites, isLoading: favoritesLoading, removeFromFavorites } = useFavorites();
   const [favoriteMovies, setFavoriteMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showClearModal, setShowClearModal] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
 
+  // Load movie details when favorites change
   useEffect(() => {
-    const loadFavorites = async () => {
+    const loadFavoriteMovies = async () => {
       setIsLoading(true);
       
       try {
-        const ids = await fetchFavorites(); // Get favorites from server
-        
-        if (ids.length > 0) {
+        if (favorites.length > 0) {
           const details = await Promise.all(
-            ids.map((id) => getMovieDetails(Number(id)))
+            favorites.map((id) => getMovieDetails(Number(id)))
           );
           setFavoriteMovies(details);
         } else {
@@ -36,14 +36,14 @@ function FavoritesPageContent() {
         }
       } catch (err) {
         console.error("Error loading favorite movies:", err);
-        toast.error("Failed to load favorites");
+        toast.error("Failed to load favorite movies");
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadFavorites();
-  }, []);
+    loadFavoriteMovies();
+  }, [favorites]);
 
   const handleClearAllClick = () => {
     setShowClearModal(true);
@@ -53,17 +53,11 @@ function FavoritesPageContent() {
     setIsClearing(true);
     
     try {
+      // Use the context's removeFromFavorites for each movie
       await Promise.all(
-        favoriteMovies.map(movie => 
-          fetch('/api/favorites/remove', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ movieId: movie.id })
-          })
-        )
+        favoriteMovies.map(movie => removeFromFavorites(movie.id))
       );
       
-      setFavoriteMovies([]);
       toast.success("All favorites removed successfully!");
       setShowClearModal(false);
     } catch (error) {
@@ -74,7 +68,7 @@ function FavoritesPageContent() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || favoritesLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="h-8 w-48 bg-gray-300 dark:bg-gray-700 rounded mb-4 animate-pulse" />

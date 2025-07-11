@@ -1,10 +1,7 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { User } from '@/types';
 import connectMongoDB from '@/lib/mongodb';
 import UserModel from '@/models/User';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-fallback-secret';
 
 interface UserCredentials {
   email: string;
@@ -21,35 +18,7 @@ export const verifyPassword = async (password: string, hashedPassword: string): 
   return bcrypt.compare(password, hashedPassword);
 };
 
-export const generateToken = (user: User): string => {
-  return jwt.sign(
-    { 
-      id: user.id, 
-      email: user.email, 
-      name: user.name 
-    },
-    JWT_SECRET,
-    { expiresIn: '7d' }
-  );
-};
-
-export const verifyToken = (token: string): User | null => {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as {
-      id: string;
-      email: string;
-      name: string;
-    };
-    return {
-      id: decoded.id,
-      email: decoded.email,
-      name: decoded.name,
-      favorites: []
-    };
-  } catch {
-    return null;
-  }
-};
+// Manual JWT functions removed - using NextAuth.js JWT instead
 
 export const registerUser = async (credentials: UserCredentials): Promise<User> => {
   await connectMongoDB();

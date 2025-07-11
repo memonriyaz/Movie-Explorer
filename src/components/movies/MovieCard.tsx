@@ -5,11 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Movie } from '@/types';
 import { getImageUrl } from '@/lib/tmdb';
-import { addFavorite, removeFavorite, fetchFavorites } from '@/lib/favorites-client';
+import { useFavorites } from '@/contexts/FavoritesContext';
 import { Heart, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
 
 interface MovieCardProps {
   movie: Movie;
@@ -18,23 +17,11 @@ interface MovieCardProps {
 
 export const MovieCard: React.FC<MovieCardProps> = ({ movie, showFavoriteButton = true }) => {
   const { data: session } = useSession();
-  const [isMovieFavorite, setIsMovieFavorite] = useState(false);
+  const { isFavorite, addToFavorites, removeFromFavorites } = useFavorites();
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Check if movie is in favorites when component mounts
-  useEffect(() => {
-    if (session) {
-      const checkFavoriteStatus = async () => {
-        try {
-          const favorites = await fetchFavorites();
-          setIsMovieFavorite(favorites.includes(movie.id));
-        } catch (error) {
-          console.error('Error checking favorite status:', error);
-        }
-      };
-      checkFavoriteStatus();
-    }
-  }, [session, movie.id]);
+  // ✅ Check if the movie is a favorite using context - no database calls!
+  const isMovieFavorite = isFavorite(movie.id);
 
   const handleFavoriteToggle = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -47,12 +34,10 @@ export const MovieCard: React.FC<MovieCardProps> = ({ movie, showFavoriteButton 
     
     try {
       if (isMovieFavorite) {
-        await removeFavorite(movie.id);
-        setIsMovieFavorite(false);
+        await removeFromFavorites(movie.id);
         toast.success(`${movie.title} removed from your favorites.`, { duration: 3000 });
       } else {
-        await addFavorite(movie.id);
-        setIsMovieFavorite(true);
+        await addToFavorites(movie.id);
         toast.success(`${movie.title} added to your favorites!`, { duration: 3000 });
       }
     } catch (error) {
